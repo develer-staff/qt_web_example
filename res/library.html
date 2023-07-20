@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script
+      type="text/javascript"
+      src="qrc:///qtwebchannel/qwebchannel.js"
+    ></script>
+    <script type="text/javascript">
+      //BEGIN SETUP
+      function output(message) {
+        var output = document.getElementById("output");
+        output.innerHTML = output.innerHTML + message + "\n";
+      }
+
+      function printBooks(books) {
+        output("____________________________________\n");
+
+        books.forEach(function (book) {
+          var availability = book.lent ? "not available" : "available";
+          output(
+            "[" +
+              availability.toUpperCase() +
+              "]  " +
+              book.title +
+              " - " +
+              book.author
+          );
+        });
+
+        output("____________________________________\n");
+      }
+
+      window.onload = function () {
+        output("Setting up QWebChannel.");
+        const books = [
+          { title: "1984", author: "George Orwell", lent: false },
+          { title: "IT", author: "Stephen King", lent: false },
+          {
+            title: "The adventures of Sherlock Holmes",
+            author: "Arthur Conan Doyle",
+            lent: false,
+          },
+          { title: "Divine Comedy", author: "Dante Alighieri", lent: false },
+          {
+            title: "Romeo and Juliet",
+            author: "William Shakespeare",
+            lent: true,
+          },
+        ];
+        var status_img = document.getElementById("status_img");
+        var status_txt = document.getElementById("status_text");
+
+        if (typeof qt !== "undefined") {
+          status_img.src = "qrc:///icons/connected.svg";
+          status_txt.innerHTML = "Connected";
+
+          new QWebChannel(qt.webChannelTransport, function (channel) {
+            output("Connected to WebChannel, ready to send/receive messages!");
+
+            printBooks(books);
+
+            // Make bookLending Api object accessible globally
+            window.bookLending = channel.objects.bookLending;
+
+            // Funtion to search a book by title or author substrings
+            const searchBook = (what) =>
+              books.find((element) => {
+                var lowerWhat = what.toLowerCase();
+                return (
+                  element.author.toLowerCase().includes(lowerWhat) ||
+                  element.title.toLocaleLowerCase().includes(lowerWhat)
+                );
+              });
+
+            document.getElementById("send").onclick = function () {
+              var input = document.getElementById("input");
+              var text = input.value;
+              if (!text) return;
+
+              output("Sent message: " + text);
+              input.value = "";
+              bookLending.sendMessage(text);
+            };
+
+            // Handle a book lending request
+            bookLending.requestLending.connect(function (bookData) {
+              output('Searching for: "' + bookData + '"');
+              var found = searchBook(bookData);
+              if (found) {
+                output(
+                  'Book "' + found.title + " - " + found.author + '" found! '
+                );
+                if (found.lent) {
+                  bookLending.sendMessage(
+                    "The requested book has already been loaned!"
+                  );
+                } else {
+                  bookLending.sendBook(found.title, found.author);
+                  found.lent = true;
+                  bookLending.sendMessage(
+                    'The book "' +
+                      found.title +
+                      " - " +
+                      found.author +
+                      '" was successfully loaned out!'
+                  );
+
+                  printBooks(books);
+                }
+              } else {
+                bookLending.sendMessage("Couldn't find the requested book!");
+              }
+            });
+
+            // Handle a book return request
+            bookLending.requestReturn.connect(function (bookData) {
+              output("Returning book: " + bookData);
+              var found = searchBook(bookData);
+              if (found) {
+                bookLending.sendMessage(
+                  'The book "' +
+                    found.title +
+                    " - " +
+                    found.author +
+                    '" was successfully returned!'
+                );
+                bookLending.takeBackBook(found.title, found.author);
+                found.lent = false;
+              } else {
+                bookLending.sendMessage(
+                  "The book you are returning does not belong to this library!"
+                );
+              }
+            });
+
+            bookLending.sendMessage("You're now connected to the library.");
+          });
+        } else {
+          output("Qt webchannel NOT connected");
+          status_img.src = "qrc:///icons/not-connected.svg";
+          status_txt.innerHTML = "NOT Connected";
+        }
+      };
+      //END SETUP
+    </script>
+
+    <style type="text/css">
+      * {
+        font-family: "Segoe UI";
+        font-size: 12px;
+        font-weight: 400;
+      }
+
+      html {
+        height: 100%;
+        width: 100%;
+      }
+
+      body {
+        background-color: #f0f0f0;
+      }
+
+      #input {
+        width: 400px;
+        margin: 0 10px 0 0;
+      }
+
+      #send {
+        background-color: #e1e1e1;
+        border: 1px solid #b2b2b2;
+        color: black;
+        width: 90px;
+        margin: 0;
+      }
+
+      #output {
+        width: 500px;
+        height: 400px;
+        color: black;
+        margin-top: 15px;
+        margin-bottom: 3px;
+        resize: none;
+      }
+
+      #status_text {
+        font-weight: 700;
+        position: absolute;
+        top: 10px;
+        margin-left: 15px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="header">
+      <img id="status_img" />
+      <span id="status_text"></span>
+    </div>
+    <textarea id="output" readonly></textarea><br />
+    <input id="input" /><input
+      type="submit"
+      id="send"
+      value="Send"
+      onclick="javascript:click();"
+    />
+  </body>
+</html>

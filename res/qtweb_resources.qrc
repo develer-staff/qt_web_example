@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/web_pages">
+        <file>library.html</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>connected.svg</file>
+        <file>not-connected.svg</file>
+    </qresource>
+</RCC>
