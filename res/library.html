@@ -2,17 +2,19 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!--The file "qwebchannel.js" is provided by Qt and you need to import it to setup the JS API allowing communication with QWebChannel.-->
     <script
       type="text/javascript"
       src="qrc:///qtwebchannel/qwebchannel.js"
     ></script>
     <script type="text/javascript">
-      //BEGIN SETUP
+      // Utility function to print a message in the text area.
       function output(message) {
         var output = document.getElementById("output");
         output.innerHTML = output.innerHTML + message + "\n";
       }
 
+      // Utility function to print a list of books in the text area.
       function printBooks(books) {
         output("____________________________________\n");
 
@@ -33,6 +35,8 @@
 
       window.onload = function () {
         output("Setting up QWebChannel.");
+
+        // Init the list of all the books belonging to the library.
         const books = [
           { title: "1984", author: "George Orwell", lent: false },
           { title: "IT", author: "Stephen King", lent: false },
@@ -48,22 +52,29 @@
             lent: true,
           },
         ];
+
         var status_img = document.getElementById("status_img");
         var status_txt = document.getElementById("status_text");
 
         if (typeof qt !== "undefined") {
+          // We can use icons from Qt app resources.
           status_img.src = "qrc:///icons/connected.svg";
           status_txt.innerHTML = "Connected";
 
+          // Create QWebChannel instance and provide the callback to handle the bookLending object API.
           new QWebChannel(qt.webChannelTransport, function (channel) {
             output("Connected to WebChannel, ready to send/receive messages!");
 
             printBooks(books);
 
-            // Make bookLending Api object accessible globally
+            // "bookLending" is the object registered to the QWebChannel (in the Qt app).
+            // Here we make the API object accessible globally.
             window.bookLending = channel.objects.bookLending;
 
-            // Funtion to search a book by title or author substrings
+            // Notify the Qt app that the connection to the library was successful.
+            bookLending.sendMessage("You're now connected to the library.");
+
+            // Function to search a book by title or author substrings.
             const searchBook = (what) =>
               books.find((element) => {
                 var lowerWhat = what.toLowerCase();
@@ -73,6 +84,7 @@
                 );
               });
 
+            // Handle the "send" button click.
             document.getElementById("send").onclick = function () {
               var input = document.getElementById("input");
               var text = input.value;
@@ -80,10 +92,11 @@
 
               output("Sent message: " + text);
               input.value = "";
+              // Send the message (typed in the text input) to the Qt app.
               bookLending.sendMessage(text);
             };
 
-            // Handle a book lending request
+            // Connect to the "requestLending" signal to handle the book lending request.
             bookLending.requestLending.connect(function (bookData) {
               output('Searching for: "' + bookData + '"');
               var found = searchBook(bookData);
@@ -96,6 +109,7 @@
                     "The requested book has already been loaned!"
                   );
                 } else {
+                  // If the book exists in the library catalog and it's not already lent, send it to the Qt app.
                   bookLending.sendBook(found.title, found.author);
                   found.lent = true;
                   bookLending.sendMessage(
@@ -113,11 +127,13 @@
               }
             });
 
-            // Handle a book return request
+            // Connect to the "requestReturn" signal to handle the book return request.
             bookLending.requestReturn.connect(function (bookData) {
               output("Returning book: " + bookData);
               var found = searchBook(bookData);
               if (found) {
+                // If the book exists in the library catalog, take it back from the Qt app (library user).
+                bookLending.takeBackBook(found.title, found.author);
                 bookLending.sendMessage(
                   'The book "' +
                     found.title +
@@ -125,7 +141,6 @@
                     found.author +
                     '" was successfully returned!'
                 );
-                bookLending.takeBackBook(found.title, found.author);
                 found.lent = false;
               } else {
                 bookLending.sendMessage(
@@ -133,18 +148,16 @@
                 );
               }
             });
-
-            bookLending.sendMessage("You're now connected to the library.");
           });
         } else {
-          output("Qt webchannel NOT connected");
+          output("Qt web channel NOT connected");
           status_img.src = "qrc:///icons/not-connected.svg";
           status_txt.innerHTML = "NOT Connected";
         }
       };
-      //END SETUP
     </script>
 
+    <!--Page style-->
     <style type="text/css">
       * {
         font-family: "Segoe UI";

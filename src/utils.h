@@ -2,6 +2,7 @@
 
 #include <QString>
 
+// This structure holds the main info of a Book.
 struct Book {
   QString title{};
   QString author{};

@@ -1,6 +1,6 @@
 # Qt WebEngine example
-This is a usage example for some [Qt WebEngine](https://doc.qt.io/qt-6/qtwebengine-overview.html) features.
-This is also part of the post “Integrare contenuti web in un'applicazione desktop Qt/C++”.
+This is a usage example of some [Qt WebEngine](https://doc.qt.io/qt-6/qtwebengine-overview.html) features.
+This example is part of the post "Integrare contenuti web in un'applicazione desktop Qt/C++".
 
 ## Features
 We can group features in:
@@ -8,7 +8,7 @@ We can group features in:
   - Allows to either request or return a book to the library
   - Receives and shows incoming messages from the  library
 - Library web page
-  - Keeps the book list updated, according to loan requests
+  - Keeps the book list updated, according to loan and return requests
   - Shows the loans and returns log
   - Sends messages to Qt app
 
@@ -19,7 +19,11 @@ So, Qt and the web page can communicate in a bidirectional way.
 
 The above screenshot shows the running application.
 
-Inside “Library web view” pane there's the HTML/JS library page. As you can see, we can have a uniform UI.
+The "Request book" pane allows the user to request a book by title or by author.
+
+The "My bookshelf" pane shows the list of books that the user currently has on loan. Borrowed books are added here, returned books are removed.
+
+The "Library web view" pane shows the HTML/JS library page. Here you can see the library catalog, the log and send text messages to the user.
 
 # Inspect a QWebEngineView
 To debug a QWebEngineView you can use developer tools:

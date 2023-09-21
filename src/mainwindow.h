@@ -4,16 +4,17 @@
 
 class BookListModel;
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
+// This is the Qt app main window.
+class MainWindow : public QMainWindow {
+  Q_OBJECT
 
 public:
-    MainWindow(QWidget* p_pParent = nullptr);
+  MainWindow(QWidget *p_pParent = nullptr);
 
 private slots:
-    void showMessage(const QString& message);
+  // This slot is called when we receive a text message from the library.
+  void showMessage(const QString &message);
 
 private:
-    BookListModel* books {};
+  BookListModel *books{};
 };

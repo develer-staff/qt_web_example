@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *p_pParent) : QMainWindow(p_pParent) {
   webView->page()->setWebChannel(webChannel);
   webView->setUrl(QUrl("qrc:/web_pages/library.html"));
 
-  // Init layout.
+  // Init layout and style.
   auto groupLayout = new QHBoxLayout(webViewGroup);
   groupLayout->addWidget(webView);
   auto frame = new QFrame(this);
@@ -43,11 +43,12 @@ MainWindow::MainWindow(QWidget *p_pParent) : QMainWindow(p_pParent) {
 
   // Do connections.
   //
-  // Add a book to the bookshelf.
+  // When we get a book from the library, we add it to the user book list (i.e.
+  // the bookshelf).
   connect(bookLending, &BookLending::bookReceived, books,
           &BookListModel::addBook);
 
-  // Remove a book from the bookshelf.
+  // When we return a book to the library, we remove it from the user book list.
   connect(bookLending, &BookLending::bookReturned, books,
           &BookListModel::removeBook);
 
@@ -55,11 +56,11 @@ MainWindow::MainWindow(QWidget *p_pParent) : QMainWindow(p_pParent) {
   connect(bookLending, &BookLending::messageReceived, this,
           &MainWindow::showMessage);
 
-  // Request a book from the library.
+  // Forward book lending request to the library.
   connect(bookshelfWidget, &BookshelfWidget::requestLending, bookLending,
           &BookLending::requestLending);
 
-  // Return a book to the library.
+  // Forward book return request to the library.
   connect(bookshelfWidget, &BookshelfWidget::requestReturn, bookLending,
           &BookLending::requestReturn);
 }
