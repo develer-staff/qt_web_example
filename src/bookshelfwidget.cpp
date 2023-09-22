@@ -59,7 +59,7 @@ BookshelfWidget::BookshelfWidget(BookListModel *books, QWidget *parent)
 }
 
 void BookshelfWidget::onRequestClicked() {
-  emit requestLending(input->text().trimmed());
+  emit lendingRequested(input->text().trimmed());
 
   input->clear();
 }
@@ -68,7 +68,7 @@ void BookshelfWidget::onReturnClicked() {
   const auto book = booksView->currentIndex().data().toString();
   const auto title = book.split("-").first().trimmed();
 
-  emit requestReturn(title);
+  emit returnRequested(title);
 
   booksView->clearSelection();
 }

@@ -96,8 +96,8 @@
               bookLending.sendMessage(text);
             };
 
-            // Connect to the "requestLending" signal to handle the book lending request.
-            bookLending.requestLending.connect(function (bookData) {
+            // Connect to the "lendingRequested" signal to handle the book lending requests.
+            bookLending.lendingRequested.connect(function (bookData) {
               output('Searching for: "' + bookData + '"');
               var found = searchBook(bookData);
               if (found) {
@@ -127,8 +127,8 @@
               }
             });
 
-            // Connect to the "requestReturn" signal to handle the book return request.
-            bookLending.requestReturn.connect(function (bookData) {
+            // Connect to the "returnRequested" signal to handle the book return requests.
+            bookLending.returnRequested.connect(function (bookData) {
               output("Returning book: " + bookData);
               var found = searchBook(bookData);
               if (found) {
@@ -142,6 +142,7 @@
                     '" was successfully returned!'
                 );
                 found.lent = false;
+                printBooks(books);
               } else {
                 bookLending.sendMessage(
                   "The book you are returning does not belong to this library!"

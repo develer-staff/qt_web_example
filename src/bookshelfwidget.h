@@ -19,8 +19,8 @@ public:
 signals:
   // The following signals will be forwarder to the web channel's registered
   // object, so that the library can receive the requests.
-  void requestLending(const QString &book);
-  void requestReturn(const QString &book);
+  void lendingRequested(const QString &book);
+  void returnRequested(const QString &book);
 
 private:
   QLineEdit *input{};

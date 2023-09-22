@@ -32,8 +32,8 @@ public slots:
 
 signals:
   // Signals for web app.
-  void requestLending(const QString &bookData);
-  void requestReturn(const QString &bookData);
+  void lendingRequested(const QString &bookData);
+  void returnRequested(const QString &bookData);
 
   // Signals for Qt app.
   void bookReceived(Book newBook);

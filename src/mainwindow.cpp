@@ -57,12 +57,12 @@ MainWindow::MainWindow(QWidget *p_pParent) : QMainWindow(p_pParent) {
           &MainWindow::showMessage);
 
   // Forward book lending request to the library.
-  connect(bookshelfWidget, &BookshelfWidget::requestLending, bookLending,
-          &BookLending::requestLending);
+  connect(bookshelfWidget, &BookshelfWidget::lendingRequested, bookLending,
+          &BookLending::lendingRequested);
 
   // Forward book return request to the library.
-  connect(bookshelfWidget, &BookshelfWidget::requestReturn, bookLending,
-          &BookLending::requestReturn);
+  connect(bookshelfWidget, &BookshelfWidget::returnRequested, bookLending,
+          &BookLending::returnRequested);
 }
 
 void MainWindow::showMessage(const QString &message) {
